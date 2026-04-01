@@ -208,3 +208,5 @@ __marimo__/
 credentials.json
 data/
 checkpoints/
+data/
+checkpoints/
