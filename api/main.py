@@ -1,9 +1,18 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from google.cloud import bigquery
 from pydantic import BaseModel
 import os
 
 app = FastAPI(title="PulseBoard API", version="1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # BigQuery client
 credentials_path = os.path.expanduser("~/projects/pulseboard/credentials.json")
@@ -127,7 +136,6 @@ def chat(request: ChatRequest):
             detected_company = company
             break
 
-    # Leaderboard queries
     if any(word in query for word in ["leaderboard", "trending", "top", "hottest", "best"]):
         rows = run_query(f"""
             SELECT company, avg_sentiment, total_mentions, trending_score
@@ -140,7 +148,6 @@ def chat(request: ChatRequest):
         ])
         return {"response": f"Top 5 trending companies right now:\n\n{result}"}
 
-    # Company specific queries
     if detected_company:
         rows = run_query(f"""
             SELECT company, avg_sentiment, total_mentions, trending_score
