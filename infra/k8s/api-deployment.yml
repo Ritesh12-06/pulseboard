@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pulseboard-api
+  labels:
+    app: pulseboard-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pulseboard-api
+  template:
+    metadata:
+      labels:
+        app: pulseboard-api
+    spec:
+      containers:
+      - name: pulseboard-api
+        image: pulseboardregistry.azurecr.io/pulseboard-api:v3
+        ports:
+        - containerPort: 8000
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /app/credentials.json
+        volumeMounts:
+        - name: bigquery-credentials
+          mountPath: /app/credentials.json
+          subPath: credentials.json
+      volumes:
+      - name: bigquery-credentials
+        secret:
+          secretName: bigquery-credentials
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pulseboard-api-service
+spec:
+  selector:
+    app: pulseboard-api
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+  type: LoadBalancer

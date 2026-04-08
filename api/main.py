@@ -15,7 +15,10 @@ app.add_middleware(
 )
 
 # BigQuery client
-credentials_path = os.path.expanduser("~/projects/pulseboard/credentials.json")
+credentials_path = os.environ.get(
+    "GOOGLE_APPLICATION_CREDENTIALS",
+    os.path.expanduser("~/projects/pulseboard/credentials.json")
+)
 client = bigquery.Client.from_service_account_json(credentials_path)
 PROJECT = "pulseboard-ai"
 DATASET = "pulseboard_gold"
